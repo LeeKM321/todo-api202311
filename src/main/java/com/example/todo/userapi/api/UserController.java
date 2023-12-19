@@ -32,6 +32,14 @@ public class UserController {
 
     private final UserService userService;
 
+    // 토큰 값 얻어오기
+    @GetMapping("/status")
+    public ResponseEntity<?> status(
+            @AuthenticationPrincipal TokenUserInfo userInfo
+    ) {
+        return ResponseEntity.ok().build();
+    }
+
     // 이메일 중복 확인 요청 처리
     // GET: /api/auth/check?email=zzzz@xxx.com
     @GetMapping("/check")
@@ -217,6 +225,26 @@ public class UserController {
         String result = userService.logout(userInfo);
         return ResponseEntity.ok().body(result);
     }
+
+
+    // s3에서 불러온 프로필 사진 처리
+    @GetMapping("/load-s3")
+    public ResponseEntity<?> loadS3(
+            @AuthenticationPrincipal TokenUserInfo userInfo
+    ) {
+        log.info("/api/auth/load-s3 - GET - user: {}", userInfo);
+
+        try {
+            String profilePath = userService.findProfilePath(userInfo.getUserId());
+            return ResponseEntity.ok().body(profilePath);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
+    }
+
+
 
 
 
